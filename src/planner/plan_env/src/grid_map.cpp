@@ -688,16 +688,16 @@ void GridMap::clearAndInflateLocalMap()
         }
       }
 
-  // add virtual ceiling to limit flight height
-  if (mp_.virtual_ceil_height_ > -0.5)
-  {
-    int ceil_id = floor((mp_.virtual_ceil_height_ - mp_.map_origin_(2)) * mp_.resolution_inv_) - 1;
-    for (int x = md_.local_bound_min_(0); x <= md_.local_bound_max_(0); ++x)
-      for (int y = md_.local_bound_min_(1); y <= md_.local_bound_max_(1); ++y)
-      {
-        md_.occupancy_buffer_inflate_[toAddress(x, y, ceil_id)] = 1;
-      }
-  }
+  // // add virtual ceiling to limit flight height
+  // if (mp_.virtual_ceil_height_ > -0.5)
+  // {
+  //   int ceil_id = floor((mp_.virtual_ceil_height_ - mp_.map_origin_(2)) * mp_.resolution_inv_) - 1;
+  //   for (int x = md_.local_bound_min_(0); x <= md_.local_bound_max_(0); ++x)
+  //     for (int y = md_.local_bound_min_(1); y <= md_.local_bound_max_(1); ++y)
+  //     {
+  //       md_.occupancy_buffer_inflate_[toAddress(x, y, ceil_id)] = 1;
+  //     }
+  // }
 }
 
 void GridMap::visCallback()
@@ -942,8 +942,8 @@ void GridMap::publishMap()
 
         Eigen::Vector3d pos;
         indexToPos(Eigen::Vector3i(x, y, z), pos);
-        if (pos(2) > mp_.visualization_truncate_height_)
-          continue;
+        // if (pos(2) > mp_.visualization_truncate_height_)
+        //   continue;
 
         pt.x = pos(0);
         pt.y = pos(1);
@@ -992,8 +992,8 @@ void GridMap::publishMapInflate(bool all_info)
 
         Eigen::Vector3d pos;
         indexToPos(Eigen::Vector3i(x, y, z), pos);
-        if (pos(2) > mp_.visualization_truncate_height_)
-          continue;
+        // if (pos(2) > mp_.visualization_truncate_height_)
+        //   continue;
 
         pt.x = pos(0);
         pt.y = pos(1);

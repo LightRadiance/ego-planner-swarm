@@ -111,6 +111,7 @@ namespace ego_planner
 
     bspline_pub_ = node_->create_publisher<traj_utils::msg::Bspline>("planning/bspline", 10);
     data_disp_pub_ = node_->create_publisher<traj_utils::msg::DataDisp>("planning/data_display", 100);
+    exec_status_pub_ = node_->create_publisher<quadrotor_msgs::msg::ExecStatus>("planning/exec_status", 11);
 
     if (target_type_ == TARGET_TYPE::MANUAL_TARGET)
     {
@@ -447,6 +448,8 @@ namespace ego_planner
     int pre_s = int(exec_state_);
     exec_state_ = new_state;
     cout << "[" + pos_call + "]: from " + state_str[pre_s] + " to " + state_str[int(new_state)] << endl;
+  
+
   }
 
   std::pair<int, EGOReplanFSM::FSM_EXEC_STATE> EGOReplanFSM::timesOfConsecutiveStateCalls()
@@ -465,9 +468,15 @@ namespace ego_planner
   {
     exec_timer_->cancel(); // To avoid blockage
 
+    // Publish exec status
+    quadrotor_msgs::msg::ExecStatus exec_status;
+    exec_status.exec_flag = exec_state_;
+    exec_status.header.stamp = rclcpp::Clock().now();
+    exec_status_pub_->publish(exec_status);
+
     static int fsm_num = 0;
     fsm_num++;
-    if (fsm_num == 100)
+    if (fsm_num == 1000)
     {
       printFSMExecState();
       if (!have_odom_)

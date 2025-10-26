@@ -1,7 +1,10 @@
 .vscode/settings.json
 .catkin_workspace
+.vscode/
+.cache/
 build/
-devel/
+install/
+log/
 files/
 src/CMakeLists.txt
 benchmark_haha.zip

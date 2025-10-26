@@ -145,7 +145,8 @@ def generate_launch_description():
             {'grid_map/local_update_range_x': 5.5},
             {'grid_map/local_update_range_y': 5.5},
             {'grid_map/local_update_range_z': 4.5},
-            {'grid_map/obstacles_inflation': 0.099},
+            # {'grid_map/obstacles_inflation': 0.099},
+            {'grid_map/obstacles_inflation': 0.2},
             {'grid_map/local_map_margin': 10},
             {'grid_map/ground_height': -0.01},
             # camera parameter
@@ -157,7 +158,8 @@ def generate_launch_description():
             {'grid_map/use_depth_filter': True},
             {'grid_map/depth_filter_tolerance': 0.15},
             {'grid_map/depth_filter_maxdist': 5.0},
-            {'grid_map/depth_filter_mindist': 0.2},
+            # {'grid_map/depth_filter_mindist': 0.2},
+            {'grid_map/depth_filter_mindist': 0.1},
             {'grid_map/depth_filter_margin': 2},
             {'grid_map/k_depth_scaling_factor': 1000.0},
             {'grid_map/skip_pixel': 2},
@@ -170,8 +172,8 @@ def generate_launch_description():
             {'grid_map/min_ray_length': 0.1},
             {'grid_map/max_ray_length': 4.5},
             
-            {'grid_map/virtual_ceil_height': 2.9},
-            {'grid_map/visualization_truncate_height': 1.8},
+            {'grid_map/virtual_ceil_height': 2.9}, ## invalid
+            {'grid_map/visualization_truncate_height': 1.8}, ## invalid
             {'grid_map/show_occ_time': False},
             {'grid_map/pose_type': 1},
             {'grid_map/frame_id': "world"},

@@ -31,6 +31,7 @@ rosidl_generate_interfaces(${PROJECT_NAME}
   "msg/TRPYCommand.msg"
   "msg/Odometry.msg"
   "msg/PolynomialTrajectory.msg"
+  "msg/ExecStatus.msg"
   DEPENDENCIES geometry_msgs nav_msgs std_msgs rclcpp
 )
 

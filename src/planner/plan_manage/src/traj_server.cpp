@@ -4,9 +4,15 @@
 #include "quadrotor_msgs/msg/position_command.hpp"
 #include "std_msgs/msg/empty.hpp"
 #include "visualization_msgs/msg/marker.hpp"
+#include "geometry_msgs/msg/pose_stamped.hpp"
 #include <rclcpp/rclcpp.hpp>
+#include <tf2/LinearMath/Quaternion.h>
+#include <tf2/LinearMath/Matrix3x3.h>
+#include <std_srvs/srv/empty.hpp>
 
+std::string frame_id;
 rclcpp::Publisher<quadrotor_msgs::msg::PositionCommand>::SharedPtr pos_cmd_pub;
+rclcpp::Publisher<geometry_msgs::msg::PoseStamped>::SharedPtr pos_geo_pub;
 
 quadrotor_msgs::msg::PositionCommand cmd;
 double pos_gain[3] = {0, 0, 0};
@@ -24,7 +30,7 @@ int traj_id_;
 double last_yaw_, last_yaw_dot_;
 double time_forward_;
 
-void bsplineCallback(traj_utils::msg::Bspline::ConstPtr msg)
+void bsplineCallback(traj_utils::msg::Bspline::ConstSharedPtr msg)
 {
   // parse pos traj
 
@@ -207,7 +213,7 @@ void cmdCallback()
   time_last = time_now;
 
   cmd.header.stamp = time_now;
-  cmd.header.frame_id = "world";
+  cmd.header.frame_id = frame_id;
   cmd.trajectory_flag = quadrotor_msgs::msg::PositionCommand::TRAJECTORY_STATUS_READY;
   cmd.trajectory_id = traj_id_;
 
@@ -229,6 +235,33 @@ void cmdCallback()
   last_yaw_ = cmd.yaw;
 
   pos_cmd_pub->publish(cmd);
+
+  geometry_msgs::msg::PoseStamped pose;
+  pose.header.stamp = time_now;
+  pose.header.frame_id = frame_id;
+  pose.pose.position.x = pos(0);
+  pose.pose.position.y = pos(1);
+  pose.pose.position.z = pos(2);
+  tf2::Quaternion q;
+  q.setRPY(0,0,yaw_yawdot.first);
+  pos_geo_pub->publish(pose);
+}
+
+double odom_yaw = 0;
+bool have_odom = false;
+void odomCb(const nav_msgs::msg::Odometry::ConstSharedPtr &msg) {
+  tf2::Quaternion q(msg->pose.pose.orientation.x, msg->pose.pose.orientation.y,
+                   msg->pose.pose.orientation.z, msg->pose.pose.orientation.w);
+  double r, p;
+  tf2::Matrix3x3(q).getRPY(r, p, odom_yaw);
+  have_odom = true;
+}
+void setYawServiceCb(const std::shared_ptr<std_srvs::srv::Empty::Request> req, std::shared_ptr<std_srvs::srv::Empty::Response> res) {
+  RCLCPP_INFO(rclcpp::get_logger("traj_server"), "Set yaw");
+  if (have_odom) {
+    last_yaw_ = odom_yaw;
+    last_yaw_dot_ = 0;
+  }
 }
 
 int main(int argc, char **argv)
@@ -241,9 +274,21 @@ int main(int argc, char **argv)
       10,
       bsplineCallback);
 
+
+  auto odom_sub = node->create_subscription<nav_msgs::msg::Odometry>(
+      "/odom_world",
+      1,
+      odomCb);
+  auto set_yaw_service = node->create_service<std_srvs::srv::Empty>(
+      "/set_yaw",
+      &setYawServiceCb);
+
   pos_cmd_pub = node->create_publisher<quadrotor_msgs::msg::PositionCommand>(
       "/position_cmd",
       50);
+  pos_geo_pub = node->create_publisher<geometry_msgs::msg::PoseStamped>(
+      "/position_cmd_geo",
+      10);
 
   auto cmd_timer = node->create_wall_timer(
       std::chrono::milliseconds(10),
@@ -260,6 +305,8 @@ int main(int argc, char **argv)
 
   node->declare_parameter("traj_server/time_forward", -1.0);
   node->get_parameter("traj_server/time_forward", time_forward_);
+
+  frame_id = node->declare_parameter("frame_id", "odom");
 
   last_yaw_ = 0.0;
   last_yaw_dot_ = 0.0;

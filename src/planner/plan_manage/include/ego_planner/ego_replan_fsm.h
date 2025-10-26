@@ -20,6 +20,7 @@
 #include "traj_utils/msg/data_disp.hpp"
 #include "ego_planner/planner_manager.h"
 #include "traj_utils/planning_visualization.h"
+#include "quadrotor_msgs/msg/exec_status.hpp"
 
 using std::vector;
 
@@ -96,6 +97,7 @@ namespace ego_planner
     rclcpp::Publisher<traj_utils::msg::DataDisp>::SharedPtr data_disp_pub_;
     rclcpp::Publisher<traj_utils::msg::MultiBsplines>::SharedPtr swarm_trajs_pub_;
     rclcpp::Publisher<traj_utils::msg::Bspline>::SharedPtr broadcast_bspline_pub_;
+    rclcpp::Publisher<quadrotor_msgs::msg::ExecStatus>::SharedPtr exec_status_pub_;
 
     /* helper functions */
     bool callReboundReplan(bool flag_use_poly_init, bool flag_randomPolyTraj); // front-end and back-end method

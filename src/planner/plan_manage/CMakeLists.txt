@@ -7,9 +7,11 @@ set(CMAKE_BUILD_TYPE "Release")
 
 add_compile_options(-Wall -O3 -g)
 
-if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
-  add_compile_options(-Wall -Wextra -Wpedantic)
-endif()
+# if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
+#   add_compile_options(-Wall -Wextra -Wpedantic)
+# endif()
+
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 # find dependencies
 find_package(ament_cmake REQUIRED)
@@ -23,6 +25,8 @@ find_package(path_searching REQUIRED)
 find_package(bspline_opt REQUIRED)
 find_package(traj_utils REQUIRED COMPONENTS traj_utils_lib)
 find_package(cv_bridge REQUIRED)
+find_package(tf2_ros REQUIRED)
+find_package(std_srvs REQUIRED)
 
 find_package(Eigen3 REQUIRED)
 find_package(PCL REQUIRED)
@@ -77,7 +81,7 @@ ament_target_dependencies(traj_server
                           visualization_msgs geometry_msgs 
                           quadrotor_msgs plan_env 
                           path_searching bspline_opt 
-                          traj_utils cv_bridge pcl_conversions)
+                          traj_utils cv_bridge pcl_conversions tf2_ros std_srvs)
 
 # Install targets
 install(
