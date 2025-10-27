@@ -8,8 +8,8 @@ from ament_index_python.packages import get_package_share_directory
 
 def generate_launch_description():
     # LaunchConfiguration definitions
-    map_size_x = LaunchConfiguration('map_size_x', default=30.0)
-    map_size_y = LaunchConfiguration('map_size_y', default=30.0)
+    map_size_x = LaunchConfiguration('map_size_x', default=100.0)
+    map_size_y = LaunchConfiguration('map_size_y', default=100.0)
     map_size_z = LaunchConfiguration('map_size_z', default=10.0)
     init_x = LaunchConfiguration('init_x', default=0.0)
     init_y = LaunchConfiguration('init_y', default=0.0)
@@ -53,14 +53,18 @@ def generate_launch_description():
             'odometry_topic': odom_topic,
             'obj_num_set': obj_num,
 
-            'camera_pose_topic': 'pcl_render_mode/pose_cam',
-            'depth_topic': 'pcl_render_node/camera_orb/depth/image_raw',
+            'camera_pose_topic': 'pcl_render_node/camera_pose',
+            'depth_topic': 'pcl_render_node/camera_depth',
             'cloud_topic': 'pcl_render_node/cloud',
 
-            'cx': str(319.859),
-            'cy': str(230.440),
-            'fx': str(512.717),
-            'fy': str(512.786),
+            # 'cx': str(319.859),
+            # 'cy': str(230.440),
+            # 'fx': str(512.717),
+            # 'fy': str(512.786),
+            'cx': str(320.0),
+            'cy': str(200.0),
+            'fx': str(320.0),
+            'fy': str(320.0),
 
             'max_vel': str(1.0),
             'max_acc': str(0.5),
@@ -99,6 +103,7 @@ def generate_launch_description():
         remappings=[
             # ('position_cmd', ['drone_', drone_id, '_planning/pos_cmd']),
             # ('planning/bspline', ['drone_', drone_id, '_planning/bspline'])
+            ('planning/bspline', ['drone_', drone_id, '_planning/bspline']),
             ("/position_cmd", ["/drone_", drone_id, "_planning/pos_cmd"]),
             ("/positon_ego_cmd", ["/drone_", drone_id, "_planning/pos_ego_cmd"]),
             ("/odom_world", ["/drone_", drone_id, '_', odom_topic]),
@@ -124,6 +129,35 @@ def generate_launch_description():
         ]
     )
 
+    odom_visualization_node = Node(
+        package='odom_visualization',
+        executable='odom_visualization',
+        name=['drone_', drone_id, '_odom_visualization'],
+        output='screen',
+        remappings=[
+            ('odom', ['drone_', drone_id, '_visual_slam/odom']),
+            ('robot', ['drone_', drone_id, '_vis/robot']),
+            ('path', ['drone_', drone_id, '_vis/path']),
+            ('time_gap', ['drone_', drone_id, '_vis/time_gap']),
+            # ('pose', ['drone_', drone_id, '_vis/pose']),
+            # ('velocity', ['drone_', drone_id, '_vis/velocity']),
+            # ('covariance', ['drone_', drone_id, '_vis/covariance']),
+            # ('covariance_velocity', ['drone_', drone_id, '_vis/covariance_velocity']),
+            # ('trajectory', ['drone_', drone_id, '_vis/trajectory']),
+            # ('sensor', ['drone_', drone_id, '_vis/sensor']),
+            # ('height', ['drone_', drone_id, '_vis/height']),
+        ],
+        parameters=[
+            {'color/a': 1.0},
+            {'color/r': 0.0},
+            {'color/g': 0.0},
+            {'color/b': 0.0},
+            {'covariance_scale': 100.0},
+            {'robot_scale': 1.0},
+            {'tf45': False},
+            {'drone_id': drone_id}
+        ]
+    )
     # Create LaunchDescription and add actions
     ld = LaunchDescription()
 
@@ -147,5 +181,6 @@ def generate_launch_description():
     ld.add_action(advanced_param_include)
     ld.add_action(traj_server_node)
     ld.add_action(waypoint_generator)
+    ld.add_action(odom_visualization_node)
 
     return ld
